@@ -24,6 +24,9 @@ const Login = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
 
+
+
+
   // 在开发环境中预填充测试数据
   useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -31,7 +34,14 @@ const Login = () => {
       console.log('🧪 开发环境：已预填充测试手机号:', DEFAULT_TEST_DATA.DEFAULT_PHONE);
     }
   }, []);
-
+  // 获取重定向URL共创ID
+  const getCoCreationId = (): String => {
+    const urlParams = new URLSearchParams(location.search);
+    const redirect = urlParams.get('redirect')?.split('/?')[1].split('&');
+    const coCreationId = redirect?.find(item => item.startsWith('co_creation_id='))?.split('=')[1];
+    return coCreationId || '';
+  };
+  
   // 获取重定向URL
   const getRedirectUrl = (): string => {
     const urlParams = new URLSearchParams(location.search);
@@ -163,7 +173,8 @@ const Login = () => {
           saveTokens(loginData.access_token, loginData.refresh_token);
           console.log('Token已保存');
           const user_id = loginData.user_id || 'default_user_id';
-          const co_creation_id = loginData.co_creation_id || Number(location.search.split('=')[1]) || Number(searchParams.get('co_creation_id'));
+          const coCreationId = getCoCreationId()
+          const co_creation_id = loginData.co_creation_id|| (coCreationId? Number(coCreationId):null) || Number(searchParams.get('co_creation_id'));
           
           // 保存登录信息到缓存
           saveLoginCache({
